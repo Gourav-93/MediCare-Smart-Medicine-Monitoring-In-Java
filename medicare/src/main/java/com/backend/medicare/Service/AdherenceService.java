@@ -48,10 +48,10 @@ public class AdherenceService {
             throw new SecurityException("Unauthorized.");
         }
 
-        List<MedicineLog> logs = medicineLogRepository.findByPatient_Id(patientId);
-        int totalDoses = logs.size();
-        int takenDoses = (int) logs.stream().filter(l -> "Taken".equalsIgnoreCase(l.getStatus())).count();
-        int missedDoses = (int) logs.stream().filter(l -> "Missed".equalsIgnoreCase(l.getStatus())).count();
+        int takenDoses = (int) medicineLogRepository.countByPatient_IdAndStatusIgnoreCase(patientId, "Taken");
+        int missedDoses = (int) medicineLogRepository.countByPatient_IdAndStatusIgnoreCase(patientId, "Missed");
+        int pendingDoses = (int) medicineLogRepository.countByPatient_IdAndStatusIgnoreCase(patientId, "Pending");
+        int totalDoses = takenDoses + missedDoses + pendingDoses;
 
         double adherencePercentage = totalDoses == 0 ? 0 : Math.round((double) takenDoses / totalDoses * 100.0 * 100.0) / 100.0;
 

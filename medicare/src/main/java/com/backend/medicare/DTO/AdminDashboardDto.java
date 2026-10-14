@@ -2,15 +2,15 @@ package com.backend.medicare.DTO;
 
 import com.backend.medicare.Model.EmergencyAlert;
 import com.backend.medicare.Model.Medicine;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class AdminDashboardDto {
     private int totalUsers;
@@ -32,4 +32,43 @@ public class AdminDashboardDto {
 
     @Builder.Default
     private List<EmergencyAlert> activeEmergencies = new ArrayList<>();
+
+    // No-Args Constructor
+    public AdminDashboardDto() {
+    }
+
+    // All-Args Constructor
+    public AdminDashboardDto(
+            int totalUsers,
+            int totalPatients,
+            int totalCaregivers,
+            int totalMedicines,
+            int totalMedicineLogs,
+            int totalTakenDoses,
+            int totalMissedDoses,
+            int totalPendingDoses,
+            double overallAdherencePercentage,
+            int activeEmergencyAlerts,
+            int totalEmergencyAlerts,
+            int unreadNotifications,
+            int caregiverPatientRelationships,
+            List<Medicine> lowStockMedicines,
+            List<EmergencyAlert> activeEmergencies
+    ) {
+        this.totalUsers = totalUsers;
+        this.totalPatients = totalPatients;
+        this.totalCaregivers = totalCaregivers;
+        this.totalMedicines = totalMedicines;
+        this.totalMedicineLogs = totalMedicineLogs;
+        this.totalTakenDoses = totalTakenDoses;
+        this.totalMissedDoses = totalMissedDoses;
+        this.totalPendingDoses = totalPendingDoses;
+        this.overallAdherencePercentage = overallAdherencePercentage;
+        this.activeEmergencyAlerts = activeEmergencyAlerts;
+        this.totalEmergencyAlerts = totalEmergencyAlerts;
+        this.unreadNotifications = unreadNotifications;
+        this.caregiverPatientRelationships = caregiverPatientRelationships;
+        this.lowStockMedicines = lowStockMedicines;
+        this.activeEmergencies = activeEmergencies;
+    }
 }

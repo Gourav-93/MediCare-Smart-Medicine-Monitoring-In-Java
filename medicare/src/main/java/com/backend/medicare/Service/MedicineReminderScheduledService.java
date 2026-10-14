@@ -51,7 +51,6 @@ public class MedicineReminderScheduledService {
     }
 
     @Scheduled(fixedDelayString = "${medicare.reminder.interval-ms:15000}")
-    @Transactional
     public void executeReminderCycle() {
         if (!reminderEnabled) {
             return;
@@ -94,23 +93,31 @@ public class MedicineReminderScheduledService {
 
                 MedicineLog log = logOpt.orElse(null);
 
-                // 1. Reminder (2 minutes before scheduled time)
-                if (now.isAfter(scheduledTime.minusMinutes(2)) || now.isEqual(scheduledTime.minusMinutes(2))) {
-                    if (log == null) {
-                        log = MedicineLog.builder()
-                                .medicine(medicine)
-                                .patient(medicine.getPatient())
-                                .scheduledTime(scheduledTime)
-                                .status("Pending")
-                                .build();
-                        log = medicineLogRepository.save(log);
-                    }
+                // Auto-create log if it's within 2 min before or already past schedule
+                if (log == null && (now.isAfter(scheduledTime.minusMinutes(2)) || now.isEqual(scheduledTime.minusMinutes(2)))) {
+                    boolean alreadyMissed = now.isAfter(scheduledTime.plusMinutes(5)) || now.isEqual(scheduledTime.plusMinutes(5));
+                    log = MedicineLog.builder()
+                            .medicine(medicine)
+                            .patient(medicine.getPatient())
+                            .scheduledTime(scheduledTime)
+                            .status(alreadyMissed ? "Missed" : "Pending")
+                            .build();
+                    log = medicineLogRepository.save(log);
+                }
 
+                if (log == null) {
+                    continue;
+                }
+
+                // 1. Reminder (Sent within window: from 2 min before up to 5 min grace period)
+                if ("Pending".equalsIgnoreCase(log.getStatus()) &&
+                        (now.isAfter(scheduledTime.minusMinutes(2)) || now.isEqual(scheduledTime.minusMinutes(2))) &&
+                        now.isBefore(scheduledTime.plusMinutes(5))) {
                     trySendReminderEmail(schedule, medicine, scheduledTime);
                 }
 
                 // 2. Check Missed (5 minutes grace period)
-                if (log != null && "Pending".equalsIgnoreCase(log.getStatus()) &&
+                if ("Pending".equalsIgnoreCase(log.getStatus()) &&
                         (now.isAfter(scheduledTime.plusMinutes(5)) || now.isEqual(scheduledTime.plusMinutes(5)))) {
                     log.setStatus("Missed");
                     medicineLogRepository.save(log);
@@ -119,7 +126,7 @@ public class MedicineReminderScheduledService {
                 }
 
                 // 3. Check Caregiver Alert (30 minutes grace period)
-                if (log != null && "Missed".equalsIgnoreCase(log.getStatus()) &&
+                if ("Missed".equalsIgnoreCase(log.getStatus()) &&
                         (now.isAfter(scheduledTime.plusMinutes(30)) || now.isEqual(scheduledTime.plusMinutes(30)))) {
                     trySendCaregiverAlert(schedule, medicine, scheduledTime);
                 }

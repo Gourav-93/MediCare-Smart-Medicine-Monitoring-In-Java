@@ -2,7 +2,9 @@ package com.backend.medicare.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -12,8 +14,6 @@ import java.time.LocalDateTime;
 })
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class EmailDeliveryLog {
 
@@ -26,12 +26,15 @@ public class EmailDeliveryLog {
     private LocalDateTime scheduledOccurrence;
 
     @Column(name = "NotificationType", nullable = false)
+    @Builder.Default
     private String notificationType = "";
 
     @Column(name = "RecipientEmail", nullable = false)
+    @Builder.Default
     private String recipientEmail = "";
 
     @Column(name = "Status", nullable = false)
+    @Builder.Default
     private String status = "";
 
     @Column(name = "SentAt")
@@ -48,6 +51,33 @@ public class EmailDeliveryLog {
     @JoinColumn(name = "MedicineScheduleId", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private MedicineSchedule medicineSchedule;
+
+    // No-Args Constructor (Required by JPA/Hibernate)
+    public EmailDeliveryLog() {
+    }
+
+    // All-Args Constructor
+    public EmailDeliveryLog(
+            Integer id,
+            LocalDateTime scheduledOccurrence,
+            String notificationType,
+            String recipientEmail,
+            String status,
+            LocalDateTime sentAt,
+            int retryCount,
+            String errorMessage,
+            MedicineSchedule medicineSchedule
+    ) {
+        this.id = id;
+        this.scheduledOccurrence = scheduledOccurrence;
+        this.notificationType = notificationType;
+        this.recipientEmail = recipientEmail;
+        this.status = status;
+        this.sentAt = sentAt;
+        this.retryCount = retryCount;
+        this.errorMessage = errorMessage;
+        this.medicineSchedule = medicineSchedule;
+    }
 
     public Integer getMedicineScheduleId() {
         return medicineSchedule != null ? medicineSchedule.getId() : null;

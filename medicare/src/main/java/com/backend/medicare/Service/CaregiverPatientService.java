@@ -64,6 +64,10 @@ public class CaregiverPatientService {
         Patient patient = patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found."));
 
+        if ("PATIENT".equalsIgnoreCase(role) && !patient.getUser().getId().equals(currentUserId)) {
+            throw new SecurityException("Patient can only link themselves.");
+        }
+
         if (caregiverPatientRepository.existsByCaregiver_IdAndPatient_Id(caregiver.getId(), patient.getId())) {
             throw new IllegalArgumentException("Relationship already exists.");
         }
@@ -111,8 +115,15 @@ public class CaregiverPatientService {
         Caregiver caregiver = caregiverRepository.findById(caregiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Caregiver not found."));
 
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Patient not found."));
+
         if ("CAREGIVER".equalsIgnoreCase(role) && !caregiver.getUser().getId().equals(currentUserId)) {
             throw new SecurityException("Caregiver can only unlink their own relationship.");
+        }
+
+        if ("PATIENT".equalsIgnoreCase(role) && !patient.getUser().getId().equals(currentUserId)) {
+            throw new SecurityException("Patient can only unlink their own relationship.");
         }
 
         if (!caregiverPatientRepository.existsByCaregiver_IdAndPatient_Id(caregiverId, patientId)) {

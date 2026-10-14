@@ -2,7 +2,9 @@ package com.backend.medicare.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "CaregiverPatients", uniqueConstraints = {
@@ -10,8 +12,6 @@ import lombok.*;
 })
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class CaregiverPatient {
 
@@ -21,6 +21,7 @@ public class CaregiverPatient {
     private Integer id;
 
     @Column(name = "RelationType", nullable = false)
+    @Builder.Default
     private String relationType = "";
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +33,18 @@ public class CaregiverPatient {
     @JoinColumn(name = "PatientId", nullable = false)
     @JsonIgnoreProperties({"caregiverPatients", "hibernateLazyInitializer", "handler"})
     private Patient patient;
+
+    // No-Args Constructor (Required by JPA/Hibernate)
+    public CaregiverPatient() {
+    }
+
+    // All-Args Constructor
+    public CaregiverPatient(Integer id, String relationType, Caregiver caregiver, Patient patient) {
+        this.id = id;
+        this.relationType = relationType;
+        this.caregiver = caregiver;
+        this.patient = patient;
+    }
 
     public Integer getCaregiverId() {
         return caregiver != null ? caregiver.getId() : null;

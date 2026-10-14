@@ -2,7 +2,9 @@ package com.backend.medicare.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +13,6 @@ import java.util.List;
 @Table(name = "Caregivers")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class Caregiver {
 
@@ -22,6 +22,7 @@ public class Caregiver {
     private Integer id;
 
     @Column(name = "Relationship", nullable = false)
+    @Builder.Default
     private String relationship = "";
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -33,6 +34,18 @@ public class Caregiver {
     @Builder.Default
     @JsonIgnoreProperties({"caregiver", "hibernateLazyInitializer", "handler"})
     private List<CaregiverPatient> caregiverPatients = new ArrayList<>();
+
+    // No-Args Constructor (Required by JPA/Hibernate)
+    public Caregiver() {
+    }
+
+    // All-Args Constructor
+    public Caregiver(Integer id, String relationship, User user, List<CaregiverPatient> caregiverPatients) {
+        this.id = id;
+        this.relationship = relationship;
+        this.user = user;
+        this.caregiverPatients = caregiverPatients;
+    }
 
     public Integer getUserId() {
         return user != null ? user.getId() : null;

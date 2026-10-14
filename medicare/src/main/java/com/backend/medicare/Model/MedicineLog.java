@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "MedicineLogs")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class MedicineLog {
 
@@ -27,6 +25,7 @@ public class MedicineLog {
     private LocalDateTime takenTime;
 
     @Column(name = "Status", nullable = false)
+    @Builder.Default
     private String status = "";
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,6 +37,22 @@ public class MedicineLog {
     @JoinColumn(name = "PatientId", nullable = false)
     @JsonIgnoreProperties({"caregiverPatients", "hibernateLazyInitializer", "handler"})
     private Patient patient;
+
+    // No-argument constructor
+    public MedicineLog() {
+    }
+
+    // All-argument constructor
+    public MedicineLog(Integer id, LocalDateTime scheduledTime,
+                       LocalDateTime takenTime, String status,
+                       Medicine medicine, Patient patient) {
+        this.id = id;
+        this.scheduledTime = scheduledTime;
+        this.takenTime = takenTime;
+        this.status = status;
+        this.medicine = medicine;
+        this.patient = patient;
+    }
 
     public Integer getMedicineId() {
         return medicine != null ? medicine.getId() : null;

@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "EmergencyAlerts")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class EmergencyAlert {
 
     @Id
@@ -24,7 +21,6 @@ public class EmergencyAlert {
     private String message = "";
 
     @Column(name = "Status", nullable = false)
-    @Builder.Default
     private String status = "ACTIVE";
 
     @Column(name = "CreatedAt", nullable = false)
@@ -35,8 +31,33 @@ public class EmergencyAlert {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PatientId", nullable = false)
-    @JsonIgnoreProperties({"caregiverPatients", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "caregiverPatients", "hibernateLazyInitializer", "handler" })
     private Patient patient;
+
+    // 1. Default No-Args Constructor (JPA requirement)
+    public EmergencyAlert() {
+    }
+
+    // 2. All-Args Constructor (Saari fields set karne ke liye)
+    @Builder
+    public EmergencyAlert(Integer id, String message, String status, LocalDateTime createdAt, LocalDateTime resolvedAt,
+            Patient patient) {
+        this.id = id;
+        this.message = (message != null) ? message : "";
+        this.status = (status != null) ? status : "ACTIVE";
+        this.createdAt = createdAt;
+        this.resolvedAt = resolvedAt;
+        this.patient = patient;
+    }
+
+    // 3. Convenient Constructor (New Alert create karne ke liye - ID aur timestamps
+    // auto-handle)
+    public EmergencyAlert(String message, Patient patient) {
+        this.message = message;
+        this.status = "ACTIVE";
+        this.createdAt = LocalDateTime.now();
+        this.patient = patient;
+    }
 
     public Integer getPatientId() {
         return patient != null ? patient.getId() : null;

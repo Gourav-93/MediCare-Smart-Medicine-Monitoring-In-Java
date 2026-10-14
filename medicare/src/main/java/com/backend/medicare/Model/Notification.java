@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "Notifications")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class Notification {
 
@@ -21,12 +19,15 @@ public class Notification {
     private Integer id;
 
     @Column(name = "Title", nullable = false)
+    @Builder.Default
     private String title = "";
 
     @Column(name = "Message", nullable = false)
+    @Builder.Default
     private String message = "";
 
     @Column(name = "Type", nullable = false)
+    @Builder.Default
     private String type = "";
 
     @Column(name = "IsRead", nullable = false)
@@ -39,6 +40,23 @@ public class Notification {
     @JoinColumn(name = "UserId", nullable = false)
     @JsonIgnoreProperties({"patient", "caregiver", "hibernateLazyInitializer", "handler"})
     private User user;
+
+    // No-argument constructor
+    public Notification() {
+    }
+
+    // All-argument constructor
+    public Notification(Integer id, String title, String message,
+                        String type, boolean isRead,
+                        LocalDateTime createdAt, User user) {
+        this.id = id;
+        this.title = title;
+        this.message = message;
+        this.type = type;
+        this.isRead = isRead;
+        this.createdAt = createdAt;
+        this.user = user;
+    }
 
     public Integer getUserId() {
         return user != null ? user.getId() : null;

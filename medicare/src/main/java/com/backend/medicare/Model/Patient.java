@@ -12,8 +12,6 @@ import java.util.List;
 @Table(name = "Patients")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class Patient {
 
@@ -26,6 +24,7 @@ public class Patient {
     private LocalDateTime dateOfBirth;
 
     @Column(name = "EmergencyContact", nullable = false)
+    @Builder.Default
     private String emergencyContact = "";
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -37,6 +36,21 @@ public class Patient {
     @Builder.Default
     @JsonIgnoreProperties({"patient", "hibernateLazyInitializer", "handler"})
     private List<CaregiverPatient> caregiverPatients = new ArrayList<>();
+
+    // No-argument constructor
+    public Patient() {
+    }
+
+    // All-argument constructor
+    public Patient(Integer id, LocalDateTime dateOfBirth,
+                   String emergencyContact, User user,
+                   List<CaregiverPatient> caregiverPatients) {
+        this.id = id;
+        this.dateOfBirth = dateOfBirth;
+        this.emergencyContact = emergencyContact;
+        this.user = user;
+        this.caregiverPatients = caregiverPatients;
+    }
 
     public Integer getUserId() {
         return user != null ? user.getId() : null;
